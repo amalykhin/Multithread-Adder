@@ -14,6 +14,8 @@ public class ArrayAdder extends Thread{
         }
 
         //System.out.println("Halfsum " + sum);
-        ArrayAdderDemo.sum += sum;
+        synchronized (ArrayAdderDemo.sum) {
+            ArrayAdderDemo.sum += sum;
+        }
     }
 }
