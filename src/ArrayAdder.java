@@ -1,7 +1,7 @@
 public class ArrayAdder extends Thread{
     private int offset;
     private int length;
-    private int sum;
+    //private Integer sum;
 
     ArrayAdder (int offset, int length) {
        this.offset = offset;
@@ -9,13 +9,15 @@ public class ArrayAdder extends Thread{
     }
 
     public void run () {
+        int sum = 0;
         for (int i = offset; i < offset+length; i++) {
             sum += ArrayAdderDemo.array[i];
         }
 
         //System.out.println("Halfsum " + sum);
-        synchronized (ArrayAdderDemo.sum) {
+        ArrayAdderDemo.sum.addAndGet(sum);
+        /*synchronized (ArrayAdderDemo.sum) {
             ArrayAdderDemo.sum += sum;
-        }
+        }*/
     }
 }
