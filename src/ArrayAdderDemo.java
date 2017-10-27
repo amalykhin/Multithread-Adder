@@ -1,56 +1,42 @@
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class ArrayAdderDemo {
-    //Interesting thing:
-    //those numbers are about minimum values for multithreaded solution to run faster.
-    //Also, sometimes sums don't match (5 out of 10 times).
+    //ArrayAdder need each minimum 100000 elements to sum in order to outperform the sequential sum.
     final static int ARR_LEN = 100_000_000;
     final static int ARR_DIV = 100_000;
-    static AtomicInteger sum;
-    //static Integer sum;
-    static int[] array;
 
     public static void main (String[] args) {
         long timeStart, timeEnd;
-        array = new int[ARR_LEN];
-        Random rand = new Random();
+        ArraySum sum;
+        int[] array;
 
-        for (int i = 0; i < ARR_LEN; i++) {
-            array[i] = rand.nextInt(10);
-            //System.out.print(array[i]+" ");
-        }
-        System.out.println();
+        sum = new ArraySum(ARR_LEN);
+        array = sum.getArray();
 
         System.out.println("Sequential sum:");
         timeStart = System.currentTimeMillis();
-        sum = new AtomicInteger(0);
-        //sum = 0;
-        for (int i = 0; i < ARR_LEN; i++) {
-            sum.addAndGet(array[i]);
-            //sum += array[i];
+        for (int i = 0; i < array.length; i++) {
+            sum.addSum(array[i]);
         }
         timeEnd = System.currentTimeMillis();
-        System.out.println("Sum: " + sum + ". Time: " + (timeEnd-timeStart) + "ms");
+        System.out.println("Sum: " + sum.getSum() + ". Time: " + (timeEnd-timeStart) + "ms");
 
+        sum.setSum(0);
         System.out.println("Multithreaded sum:");
         timeStart = System.currentTimeMillis();
         ArrayAdder t = null;
-        sum = new AtomicInteger(0);
-        //sum = 0;
         int i;
-        for (i = 0; i+ARR_DIV < ARR_LEN; i+=ARR_DIV) {
-            t = new ArrayAdder(i, ARR_DIV);
-            t.start();
-        }
         try {
-            t = new ArrayAdder(i, ARR_LEN - i);
+            for (i = 0; i < array.length/ARR_DIV; i++) {
+                t = new ArrayAdder(sum, i*ARR_DIV, ARR_DIV);
+                t.start();
+                t.join();
+            }
+            t = new ArrayAdder(sum, i*ARR_DIV, array.length % ARR_DIV);
             t.start();
             t.join();
         }
-        catch (InterruptedException E) {}
+        catch (InterruptedException E) { System.out.println("Thread "+t.getName()+" was interrupted"); }
         timeEnd = System.currentTimeMillis();
-        System.out.println("Sum: " + sum + ". Time: " + (timeEnd-timeStart) + "ms");
+        System.out.println("Sum: " + sum.getSum() + ". Time: " + (timeEnd-timeStart) + "ms");
 
     }
 }

@@ -1,23 +1,26 @@
 public class ArrayAdder extends Thread{
     private int offset;
     private int length;
-    //private Integer sum;
+    private int sum = 0;
+    private ArraySum osum;
 
-    ArrayAdder (int offset, int length) {
-       this.offset = offset;
-       this.length = length;
+    ArrayAdder (ArraySum osum, int offset, int length) {
+        this.offset = offset;
+        this.length = length;
+        this.osum = osum;
     }
 
     public void run () {
-        int sum = 0;
+        int array[] = osum.getArray();
+
         for (int i = offset; i < offset+length; i++) {
-            sum += ArrayAdderDemo.array[i];
+            sum += array[i];
         }
 
-        //System.out.println("Halfsum " + sum);
-        ArrayAdderDemo.sum.addAndGet(sum);
-        /*synchronized (ArrayAdderDemo.sum) {
-            ArrayAdderDemo.sum += sum;
-        }*/
+        osum.addSum(sum);
+    }
+
+    public int getSum () {
+        return sum;
     }
 }
